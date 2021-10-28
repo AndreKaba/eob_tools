@@ -48,8 +48,13 @@ def load_data(directory):
         tmp = json.load(file.open())
         desired = tmp['Pt32Config']['DesiredTemp']
         actual = tmp['Pt32Config']['CurrentTemp']
-        on = tmp['Pt32Config']['IsBtwSwitchedOn']
-        data.append(dict(date=date, actual=actual, desired=desired, on=on))
+        on = tmp['ComProtocolConfig']['IsOutputOn']
+        data.append(dict(
+            date=date,
+            actual=actual,
+            desired=desired,
+            on=on
+        ))
 
     return pd.DataFrame(data)
 
@@ -73,14 +78,17 @@ def plot_basic(data):
 
 def get_data_and_plot():
     print(f'Running at {datetime.datetime.now()}')
-    source_dir = Path('/mnt/GDrive_personal/kotel_exports')
+    gdrive_dir = Path('/mnt/GDrive_personal')
+    source_dir = gdrive_dir / 'kotel_exports'
     local_dir = Path('./data')
-    figure_export = Path('/mnt/GDrive_personal/home_temp.html')
+    export_dir = Path('./exports')
+    figure_export = export_dir / 'home_temp.html'
 
     refresh_data(source_dir=source_dir, local_dir=local_dir)
     data = load_data(local_dir).sort_values('date', ascending=True)
     fig = plot_basic(data)
     fig.write_html(figure_export)
+    shutil.copy(figure_export, gdrive_dir)
 
     print(f'Done.\n')
 
@@ -93,5 +101,5 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
-    # get_data_and_plot()
+    # main()
+    get_data_and_plot()
