@@ -9,6 +9,7 @@ from pathlib import Path
 import datetime
 import pandas as pd
 import numpy as np
+from argparse import ArgumentParser
 
 
 def refresh_data(source_dir, local_dir):
@@ -94,12 +95,18 @@ def get_data_and_plot():
 
 
 def main():
-    schedule.every(10).minutes.do(get_data_and_plot)
-    while True:
-        schedule.run_pending()
-        time.sleep(1)
+    ap = ArgumentParser()
+    ap.add_argument('--schedule', '-sch', default=False, action='store_true')
+    args = ap.parse_args()
+    
+    if args.schedule:
+        schedule.every(10).minutes.do(get_data_and_plot)
+        while True:
+            schedule.run_pending()
+            time.sleep(1)
+    else:
+        get_data_and_plot()
 
 
 if __name__ == '__main__':
-    # main()
-    get_data_and_plot()
+    main()
